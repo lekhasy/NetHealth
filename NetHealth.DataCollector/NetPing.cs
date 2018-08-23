@@ -3,18 +3,18 @@ using System.Net.NetworkInformation;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace NetHealth
+namespace NetHealth.DataCollector
 {
     public class NetPing
     {
-        readonly string hostNameOrAddress = null;
+        public readonly string HostName = null;
         readonly int delayTime = 0;
         readonly Ping ping = new Ping();
         uint requestCount = 0;
 
         public NetPing(string hostNameOrAddress, int delayTime)
         {
-            this.hostNameOrAddress = hostNameOrAddress;
+            this.HostName = hostNameOrAddress;
             this.delayTime = delayTime;
         }
 
@@ -32,7 +32,7 @@ namespace NetHealth
                     Task.Run(async () =>
                    {
                        var startedMoment = DateTime.Now;
-                       var pingReply = await ping.SendPingAsync(hostNameOrAddress);
+                       var pingReply = await ping.SendPingAsync(HostName);
                        PingResultReceived?.Invoke(this, new NetPingReceivedEventArgs(pingReply, startedMoment, sequence));
                    });
                     Thread.Sleep(delayTime);

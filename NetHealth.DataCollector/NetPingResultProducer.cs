@@ -1,19 +1,24 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Net.NetworkInformation;
 
-
-namespace NetHealth
+namespace NetHealth.DataCollector
 {
     public class NetPingResultProducer
     {
         readonly NetPing netPing;
         List<NetPingEntry> pingResultBuffer = new List<NetPingEntry>();
-
-        public NetPingResultProducer(string hostNameOrAddress, int delayTime)
+        public string HostName
         {
-            netPing = new NetPing(hostNameOrAddress, delayTime);
+            get
+            {
+                return netPing.HostName;
+            }
+        }
+
+        public NetPingResultProducer(string hostName, int delayTime)
+        {
+            netPing = new NetPing(hostName, delayTime);
             netPing.PingResultReceived += NetPing_PingResultReceived;
             netPing.NewPingStarted += NetPing_NewPingStarted;
         }
@@ -22,7 +27,6 @@ namespace NetHealth
         {
             pingResultBuffer.Add(new NetPingEntry(e.Sequence));
         }
-
 
         void NetPing_PingResultReceived(object sender, NetPingReceivedEventArgs e)
         {
@@ -33,21 +37,31 @@ namespace NetHealth
             }
         }
 
-        IEnumerable<NetPingResult> GetLatestPingResults()
+        public List<NetPingResult> GetLatestPingResults()
         {
             lock (pingResultBuffer)
             {
+                var first = pingResultBuffer.FirstOrDefault();
+
                 var firstInValidIndex = pingResultBuffer.FindIndex(en => !en.IsCompleted);
 
                 if (firstInValidIndex == -1) return new List<NetPingResult>();
 
+                // the result belong to two separate day
+                // so, just return for the previous day, not today
+                if (pingResultBuffer[firstInValidIndex - 1].PingResult.StartedMoment.Day != pingResultBuffer.First().PingResult.StartedMoment.Day)
+                {
+                    firstInValidIndex = pingResultBuffer
+                        .FindIndex(en => en.PingResult.StartedMoment.Day != pingResultBuffer.First().PingResult.StartedMoment.Day);
+                }
+
                 var returnedResult = pingResultBuffer.Take(firstInValidIndex);
                 pingResultBuffer = pingResultBuffer.Skip(firstInValidIndex).ToList();
-                return returnedResult.Select(p => p.PingResult);
+                return returnedResult.Select(p => p.PingResult).ToList();
             }
         }
 
-        public void StartPing()
+        public void StartProduce()
         {
             netPing.Start();
         }

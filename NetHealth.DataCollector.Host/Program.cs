@@ -8,17 +8,14 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 
-namespace NetHealth
+namespace NetHealth.DataCollector.Host
 {
     public class Program
     {
         public static void Main(string[] args)
         {
-            NetPingResultProducer netPingManager = new NetPingResultProducer("google.com", 100);
-            netPingManager.StartPing();
             CreateWebHostBuilder(args).Build().Run();
         }
-
 
         public static IWebHostBuilder CreateWebHostBuilder(string[] args) =>
             WebHost.CreateDefaultBuilder(args)

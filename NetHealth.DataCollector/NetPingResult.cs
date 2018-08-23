@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Net.NetworkInformation;
 
-namespace NetHealth
+namespace NetHealth.DataCollector
 {
     public class NetPingResult
     {

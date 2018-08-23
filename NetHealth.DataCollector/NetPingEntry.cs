@@ -1,5 +1,6 @@
 ﻿using System;
-namespace NetHealth
+
+namespace NetHealth.DataCollector
 {
     public class NetPingEntry
     {
